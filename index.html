@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>WHO Bhutan Visitor</title>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏢</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .login-card .subtitle {
+            color: #718096;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .error-msg {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .header .date {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 16px;
+            background: white;
+            margin-bottom: 10px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 16px 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .stat-card h3 {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        .stat-card p {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(env(safe-area-inset-bottom) + 10px);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #718096;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .nav-btn span {
+            font-size: 11px;
+        }
+
+        .nav-btn.active {
+            color: #667eea;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            padding: 0 16px 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+
+        .form-card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* Visitor Cards */
+        .visitor-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .visitor-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .visitor-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+        }
+
+        .visitor-company {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.inside {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-badge.left {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .visitor-details {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .detail-label {
+            color: #718096;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .visitor-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-checkout {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+
+        /* Search & Filters */
+        .search-bar {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Admin Panel */
+        .admin-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .admin-card h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #2d3748;
+        }
+
+        .user-item {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .add-user-grid {
+            display: grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>🏢 WHO Bhutan</h1>
+            <p class="subtitle">Visitor Dashboard</p>
+            <div id="loginError" class="error-msg"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p style="margin-top: 20px; font-size: 12px; color: #a0aec0; text-align: center;">
+                Default: admin / admin123
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <div class="header">
+            <h1>WHO Bhutan Visitor Dashboard</h1>
+            <p class="date" id="currentDate"></p>
+            <div class="user-bar">
+                <span class="user-badge" id="userBadge">👤 Admin</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="todayVisitors">0</h3>
+                <p>Today</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="currentlyInside">0</h3>
+                <p>Inside</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalVisitors">0</h3>
+                <p>Total</p>
+            </div>
+        </div>
+
+        <!-- Check-In Screen -->
+        <div id="checkinScreen" class="screen active">
+            <div class="form-card">
+                <h2>✍️ New Visitor Check-In</h2>
+                <form id="visitorForm">
+                    <div class="form-group">
+                        <label>Visitor Name *</label>
+                        <input type="text" id="visitorName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Company/Organization</label>
+                        <input type="text" id="company">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="tel" id="contact">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Person to Meet *</label>
+                        <select id="hostName" required>
+                            <option value="">-- Select Person --</option>
+                            <option value="WR">WR</option>
+                            <option value="Jamyang Choden">Jamyang Choden</option>
+                            <option value="Thinley Wangmo">Thinley Wangmo</option>
+                            <option value="Kencho Wangdi">Kencho Wangdi</option>
+                            <option value="Sonam Chhoki">Sonam Chhoki</option>
+                            <option value="Dechen Choden">Dechen Choden</option>
+                            <option value="Dr Lobzang Dorji">Dr Lobzang Dorji</option>
+                            <option value="Wangchuk">Wangchuk</option>
+                            <option value="Sonam Tobgye">Sonam Tobgye</option>
+                            <option value="Pema Lethro">Pema Lethro</option>
+                            <option value="Sonam Yangchen">Sonam Yangchen</option>
+                            <option value="Kinga Namgyel">Kinga Namgyel</option>
+                            <option value="Jigme Lhendup">Jigme Lhendup</option>
+                            <option value="Tashi Tenzin">Tashi Tenzin</option>
+                            <option value="Thukten">Thukten</option>
+                            <option value="Dawa Penjor">Dawa Penjor</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Purpose of Visit</label>
+                        <select id="purpose">
+                            <option value="Meeting">Meeting</option>
+                            <option value="Interview">Interview</option>
+                            <option value="Delivery">Delivery</option>
+                            <option value="Consultation">Consultation</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Check-In Visitor</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Visitors Screen -->
+        <div id="visitorsScreen" class="screen">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Search visitors...">
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-status="all" onclick="filterStatus('all')">All</button>
+                <button class="filter-btn" data-status="checked-in" onclick="filterStatus('checked-in')">Inside</button>
+                <button class="filter-btn" data-status="checked-out" onclick="filterStatus('checked-out')">Left</button>
+                <button class="filter-btn" data-date="today" onclick="filterDate('today')">Today</button>
+                <button class="filter-btn" data-date="week" onclick="filterDate('week')">This Week</button>
+            </div>
+
+            <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+
+            <div id="visitorsList"></div>
+        </div>
+
+        <!-- Admin Screen -->
+        <div id="adminScreen" class="screen">
+            <div class="admin-card">
+                <h3>👥 Manage Users</h3>
+                <form id="addUserForm" class="add-user-grid">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="newUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="userRole">
+                            <option value="admin">Admin</option>
+                            <option value="receptionist">Receptionist</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Add User</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3>📋 User List</h3>
+                <div id="usersList"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="switchScreen('checkin')">
+                ✍️
+                <span>Check-In</span>
+            </button>
+            <button class="nav-btn" onclick="switchScreen('visitors')">
+                📋
+                <span>Visitors</span>
+            </button>
+            <button class="nav-btn" id="adminNavBtn" onclick="switchScreen('admin')">
+                ⚙️
+                <span>Admin</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('users')) || [
+            { username: 'admin', password: 'admin123', role: 'admin' }
+        ];
+        let visitors = JSON.parse(localStorage.getItem('visitors')) || [];
+        let currentStatusFilter = 'all';
+        let currentDateFilter = 'all';
+
+        // Auth
+        function checkAuth() {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser) {
+                showApp();
+            } else {
+                showLogin();
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = { username: user.username, role: user.role };
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showApp();
+            } else {
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.textContent = '❌ Invalid username or password';
+                errorDiv.style.display = 'block';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userBadge').textContent = `👤 ${currentUser.username}`;
+            
+            if (currentUser.role !== 'admin') {
+                document.getElementById('adminNavBtn').classList.add('hidden');
+            }
+            
+            updateDate();
+            updateStats();
+            renderVisitors();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            document.getElementById('loginForm').reset();
+            showLogin();
+        }
+
+        // Navigation
+        function switchScreen(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if (screen === 'checkin') {
+                document.getElementById('checkinScreen').classList.add('active');
+                event.target.closest('.nav-btn').classList.add('active');
+            } else if (screen === 'visitors') {
+                document.getElementById('visitorsScreen').classList.add('active');
+                event.target.closest('.nav-btn').classList.add('active');
+                renderVisitors();
+            } else if (screen === 'admin') {
+                document.getElementById('adminScreen').classList.add('active');
+                event.target.closest('.nav-btn').classList.add('active');
+                renderUsersList();
+            }
+        }
+
+        // Date & Stats
+        function updateDate() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayVisitors = visitors.filter(v => new Date(v.checkInTime).toDateString() === today);
+            const currentlyInside = visitors.filter(v => v.status === 'checked-in');
+
+            document.getElementById('todayVisitors').textContent = todayVisitors.length;
+            document.getElementById('currentlyInside').textContent = currentlyInside.length;
+            document.getElementById('totalVisitors').textContent = visitors.length;
+        }
+
+        // Check-in
+        document.getElementById('visitorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const visitor = {
+                id: Date.now(),
+                name: document.getElementById('visitorName').value,
+                company: document.getElementById('company').value,
+                contact: document.getElementById('contact').value,
+                host: document.getElementById('hostName').value,
+                purpose: document.getElementById('purpose').value,
+                checkInTime: new Date().toISOString(),
+                checkOutTime: null,
+                status: 'checked-in',
+                checkedInBy: currentUser.username
+            };
+
+            visitors.unshift(visitor);
+            localStorage.setItem('visitors', JSON.stringify(visitors));
+            this.reset();
+            updateStats();
+            
+            alert('✅ Visitor checked in successfully!');
+        });
+
+        // Filters
+        function filterStatus(status) {
+            currentStatusFilter = status;
+            document.querySelectorAll('[data-status]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.status === status);
+            });
+            renderVisitors();
+        }
+
+        function filterDate(date) {
+            currentDateFilter = date;
+            document.querySelectorAll('[data-date]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.date === date);
+            });
+            renderVisitors();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderVisitors);
+
+        // Render visitors
+        function renderVisitors() {
+            const container = document.getElementById('visitorsList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = visitors.filter(v => {
+                const matchesSearch = v.name.toLowerCase().includes(searchTerm) ||
+                                    (v.company || '').toLowerCase().includes(searchTerm) ||
+                                    v.host.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = currentStatusFilter === 'all' || v.status === currentStatusFilter;
+                
+                let matchesDate = true;
+                if (currentDateFilter === 'today') {
+                    matchesDate = new Date(v.checkInTime).toDateString() === new Date().toDateString();
+                } else if (currentDateFilter === 'week') {
+                    const weekAgo = new Date();
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    matchesDate = new Date(v.checkInTime) >= weekAgo;
+                }
+
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <p>No visitors found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(v => `
+                <div class="visitor-card">
+                    <div class="visitor-card-header">
+                        <div>
+                            <div class="visitor-name">${v.name}</div>
+                            <div class="visitor-company">${v.company || 'No company'}</div>
+                        </div>
+                        <span class="status-badge ${v.status === 'checked-in' ? 'inside' : 'left'}">
+                            ${v.status === 'checked-in' ? 'Inside' : 'Left'}
+                        </span>
+                    </div>
+                    <div class="visitor-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Host:</span>
+                            <span class="detail-value">${v.host}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Purpose:</span>
+                            <span class="detail-value">${v.purpose}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Check-In:</span>
+                            <span class="detail-value">${new Date(v.checkInTime).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</span>
+                        </div>
+                        ${v.checkOutTime ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Check-Out:</span>
+                            <span class="detail-value">${new Date(v.checkOutTime).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="visitor-actions">
+                        ${v.status === 'checked-in' ? 
+                            `<button class="btn-small btn-checkout" onclick="checkOut(${v.id})">Check Out</button>` : ''}
+                        ${currentUser.role === 'admin' ? 
+                            `<button class="btn-small btn-delete" onclick="deleteVisitor(${v.id})">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkOut(id) {
+            const visitor = visitors.find(v => v.id === id);
+            if (visitor) {
+                visitor.checkOutTime = new Date().toISOString();
+                visitor.status = 'checked-out';
+                localStorage.setItem('visitors', JSON.stringify(visitors));
+                updateStats();
+                renderVisitors();
+            }
+        }
+
+        function deleteVisitor(id) {
+            if (confirm('Delete this visitor record?')) {
+                visitors = visitors.filter(v => v.id !== id);
+                localStorage.setItem('visitors', JSON.stringify(visitors));
+                updateStats();
+                renderVisitors();
+            }
+        }
+
+        // Admin
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('userRole').value;
+
+            if (users.find(u => u.username === username)) {
+                alert('❌ Username already exists!');
+                return;
+            }
+
+            users.push({ username, password, role });
+            localStorage.setItem('users', JSON.stringify(users));
+            this.reset();
+            renderUsersList();
+            alert('✅ User added!');
+        });
+
+        function renderUsersList() {
+            const container = document.getElementById('usersList');
+            container.innerHTML = users.map(u => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="user-name">${u.username}</div>
+                        <div class="user-role">${u.role}</div>
+                    </div>
+                    ${u.username !== 'admin' ? 
+                        `<button class="btn-small btn-delete" onclick="deleteUser('${u.username}')">Delete</button>` : 
+                        '<span style="font-size: 11px; color: #a0aec0;">Default</span>'}
+                </div>
+            `).join('');
+        }
+
+        function deleteUser(username) {
+            if (confirm(`Delete user "${username}"?`)) {
+                users = users.filter(u => u.username !== username);
+                localStorage.setItem('users', JSON.stringify(users));
+                renderUsersList();
+            }
+        }
+
+        // Export
+        function exportToCSV() {
+            const headers = ['Name', 'Company', 'Contact', 'Host', 'Purpose', 'Check-In', 'Check-Out', 'Status'];
+            const csvContent = [
+                headers.join(','),
+                ...visitors.map(v => [
+                    v.name,
+                    v.company || '',
+                    v.contact || '',
+                    v.host,
+                    v.purpose,
+                    new Date(v.checkInTime).toLocaleString(),
+                    v.checkOutTime ? new Date(v.checkOutTime).toLocaleString() : '',
+                    v.status
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `WHO_visitors_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+</html>
