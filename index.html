@@ -78,8 +78,8 @@
         /* Header */
         .header {
             background: white;
-           /* color: #2d3748; */
-              color: #ffffff;
+           color: #2d3748; 
+            
             padding: 15px 16px;
             position: sticky;
             top: 0;
@@ -903,7 +903,7 @@
             localStorage.setItem('users', JSON.stringify(users));
             this.reset();
             renderUsersList();
-            alert('✅ User added!');
+            alert('✅ User added successfully!');
         });
 
         function renderUsersList() {
