@@ -757,17 +757,29 @@
             }
         }
 
-        async function saveVisitor(visitor) {
+        async function saveVisitor(visitorData) {
             try {
+                const payload = {
+                    action: 'addVisitor',
+                    ...visitorData
+                };
+                
+                console.log('Sending to server:', payload);
+                
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(visitor)
+                    body: JSON.stringify(payload)
                 });
-                const data = await response.json();
+                
+                const responseText = await response.text();
+                console.log('Server response:', responseText);
+                
+                const data = JSON.parse(responseText);
                 return data.success;
             } catch (error) {
                 console.error('Error saving visitor:', error);
+                alert('Error details: ' + error.message);
                 return false;
             }
         }
@@ -880,8 +892,7 @@
             btn.disabled = true;
             btn.textContent = 'Saving...';
 
-            const visitor = {
-                action: 'addVisitor',
+            const visitorData = {
                 id: Date.now(),
                 name: document.getElementById('visitorName').value,
                 company: document.getElementById('company').value,
@@ -894,7 +905,7 @@
                 checkedInBy: currentUser.username
             };
 
-            const success = await saveVisitor(visitor);
+            const success = await saveVisitor(visitorData);
             
             if (success) {
                 this.reset();
