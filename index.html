@@ -814,9 +814,17 @@
                 return;
             }
             
+            // Show loading
+            document.getElementById('loginLoading').classList.add('active');
+            
+            // Reload users from Google Sheets to get latest users
+            await loadUsers();
+            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const user = users.find(u => u.username === username && u.password === password);
+            
+            document.getElementById('loginLoading').classList.remove('active');
             
             if (user) {
                 currentUser = { username: user.username, role: user.role };
