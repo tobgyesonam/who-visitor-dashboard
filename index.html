@@ -710,7 +710,7 @@
 
     <script>
         // IMPORTANT: Replace this with your Google Apps Script Web App URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2ZFsDpW1vOMIskD22nY0Xo6GtHn3wrz9DjdKzZmDtkmnFseF1WzLhzaGeYtyELkf47g/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIYIN3SA9_jKqKm8ZEzKq6h7-T5p5a6Z8QSuFGJkLGMnlLtr7KZOtFCa45h7UEd2vloQ/exec';
         
         // State
         let currentUser = null;
@@ -759,18 +759,24 @@
 
         async function saveVisitor(visitorData) {
             try {
-                const payload = {
+                // Build URL with parameters (avoids CORS preflight)
+                const params = new URLSearchParams({
                     action: 'addVisitor',
-                    ...visitorData
-                };
-                
-                console.log('Sending to server:', payload);
-                
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    id: visitorData.id,
+                    name: visitorData.name,
+                    company: visitorData.company,
+                    contact: visitorData.contact,
+                    host: visitorData.host,
+                    purpose: visitorData.purpose,
+                    checkInTime: visitorData.checkInTime,
+                    checkOutTime: visitorData.checkOutTime,
+                    status: visitorData.status,
+                    checkedInBy: visitorData.checkedInBy
                 });
+                
+                console.log('Sending to server:', params.toString());
+                
+                const response = await fetch(`${SCRIPT_URL}?${params.toString()}`);
                 
                 const responseText = await response.text();
                 console.log('Server response:', responseText);
@@ -1019,16 +1025,14 @@
                 visitor.checkOutTime = new Date().toISOString();
                 visitor.status = 'checked-out';
                 
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'updateVisitor',
-                        id: id,
-                        checkOutTime: visitor.checkOutTime,
-                        status: visitor.status
-                    })
+                const params = new URLSearchParams({
+                    action: 'updateVisitor',
+                    id: id,
+                    checkOutTime: visitor.checkOutTime,
+                    status: visitor.status
                 });
+                
+                await fetch(`${SCRIPT_URL}?${params.toString()}`);
                 
                 await loadVisitors();
             }
@@ -1036,14 +1040,12 @@
 
         async function deleteVisitor(id) {
             if (confirm('Delete this visitor record?')) {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'deleteVisitor',
-                        id: id
-                    })
+                const params = new URLSearchParams({
+                    action: 'deleteVisitor',
+                    id: id
                 });
+                
+                await fetch(`${SCRIPT_URL}?${params.toString()}`);
                 
                 await loadVisitors();
             }
@@ -1062,14 +1064,14 @@
                 return;
             }
 
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'addUser',
-                    username, password, role
-                })
+            const params = new URLSearchParams({
+                action: 'addUser',
+                username: username,
+                password: password,
+                role: role
             });
+            
+            await fetch(`${SCRIPT_URL}?${params.toString()}`);
             
             this.reset();
             await loadUsers();
@@ -1094,14 +1096,12 @@
 
         async function deleteUser(username) {
             if (confirm(`Delete user "${username}"?`)) {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'deleteUser',
-                        username
-                    })
+                const params = new URLSearchParams({
+                    action: 'deleteUser',
+                    username: username
                 });
+                
+                await fetch(`${SCRIPT_URL}?${params.toString()}`);
                 
                 await loadUsers();
                 renderUsersList();
